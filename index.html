@@ -29,3 +29,341 @@
             --text-h1: #fff;
             --input-bg: rgba(255, 255, 255, 0.1);
             --input-text: #fff;
+            --result-text: #fff;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            transition: background 0.5s ease; /* เอฟเฟกต์ตอนเปลี่ยนธีม */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--container-border);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        h1 {
+            color: var(--text-h1);
+            margin-top: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            padding: 15px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            margin: 20px 0;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            resize: vertical;
+            color: var(--input-text);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* ปุ่ม Toggle Theme */
+        .theme-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, background 0.3s;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+            flex-grow: 1;
+        }
+
+        .btn-clear {
+            background: rgba(255, 255, 255, 0.5);
+            color: #333;
+        }
+        
+        /* ปรับปุ่ม Clear ใน Dark Mode */
+        body.dark-mode .btn-clear {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--result-text);
+            text-shadow: 0 2px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .winner-anim {
+            animation: popUp 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
+            color: #d63384; 
+            font-size: 3rem;
+            text-shadow: 0 0 20px rgba(214, 51, 132, 0.6); /* เพิ่มแสงวิบวับ */
+        }
+        
+        /* ปรับสีผู้ชนะใน Dark Mode ให้เด่นขึ้น */
+        body.dark-mode .winner-anim {
+            color: #ff6b81;
+            text-shadow: 0 0 20px rgba(255, 107, 129, 0.8);
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+    
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+
+    <div class="container">
+        <h1>✨ Random Picker ✨</h1>
+        <p style="color: var(--text-h1); font-size: 1.2rem;">
+            koomean
+        </p>
+        <p style="color: var(--text-h1); opacity: 0.8; margin-bottom: 5px;">ใส่ชื่อหรือรายการ (บรรทัดละ 1 ชื่อ)</p>
+        
+        <textarea id="inputArea" placeholder="ตัวอย่าง:&#10;นาย A&#10;นางสาว B&#10;กลุ่มที่ 1&#10;กลุ่มที่ 2"></textarea>
+        
+        <div class="btn-group">
+            <button class="btn-clear" onclick="clearInput()">ล้างข้อมูล</button>
+            <button class="btn-start" id="startBtn" onclick="startRandom()">สุ่มเลย!</button>
+        </div>
+
+        <div class="result-box" id="resultDisplay">...</div>
+    </div>
+
+    <script>
+        const inputArea = document.getElementById('inputArea');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        let isRunning = false;
+        let interval;
+
+        // --- ฟังก์ชัน Dark Mode ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            
+            // เปลี่ยนไอคอนปุ่ม
+            if (document.body.classList.contains('dark-mode')) {
+                themeBtn.innerText = '☀️'; // เปลี่ยนเป็นพระอาทิตย์
+            } else {
+                themeBtn.innerText = '🌙'; // เปลี่ยนเป็นพระจันทร์
+            }
+        }
+
+        function clearInput() {
+            inputArea.value = '';
+            resultDisplay.innerText = '...';
+            resultDisplay.classList.remove('winner-anim');
+        }
+
+        function startRandom() {
+            if (isRunning) return;
+
+            const text = inputArea.value;
+            const items = text.split('\n').filter(item => item.trim() !== '');
+
+            if (items.length === 0) {
+                alert("กรุณาใส่ชื่ออย่างน้อย 1 ชื่อครับ");
+                return;
+            }
+
+            if (items.length === 1) {
+                resultDisplay.innerText = items[0];
+                celebrate();
+                return;
+            }
+
+            isRunning = true;
+            startBtn.innerText = "กำลังสุ่ม...";
+            startBtn.style.opacity = "0.7";
+            resultDisplay.classList.remove('winner-anim');
+
+            let counter = 0;
+            const duration = 2000;
+            const speed = 50;
+
+            interval = setInterval(() => {
+                const randomItem = items[Math.floor(Math.random() * items.length)];
+                resultDisplay.innerText = randomItem;
+            }, speed);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                const winner = items[Math.floor(Math.random() * items.length)];
+                resultDisplay.innerText = winner;
+                resultDisplay.classList.add('winner-anim');
+                
+                isRunning = false;
+                startBtn.innerText = "สุ่มเลย!";
+                startBtn.style.opacity = "1";
+                
+                celebrate();
+            }, duration);
+        }
+
+        // --- Confetti Logic ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: canvas.height + Math.random() * 100,
+                color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                size: Math.random() * 10 + 5,
+                speedX: Math.random() * 6 - 3,
+                speedY: Math.random() * -15 - 5,
+                gravity: 0.2,
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 10 - 5
+            };
+        }
+
+        function celebrate() {
+            particles = [];
+            for (let i = 0; i < 150; i++) {
+                particles.push(createParticle());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            if (particles.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.speedY += p.gravity;
+                p.rotation += p.rotationSpeed;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.y > canvas.height) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animateConfetti);
+        }
+    </script>
+</body>
+</html>
